@@ -7,10 +7,10 @@ import sys
 from astropy.io import fits
 from astropy.wcs import WCS
 sys.path.append('../')
-from config import *
+from setup import *
 import argparse
 
-def main(fitfile, specfile, ngauss, xstart=141, ystart=139, vminplot=-3, vmaxplot=18):
+def main(fitfile, specfile, ngauss, xstart=232, ystart=247, vminplot=-3, vmaxplot=18):
 
     # File in K and in km/s
     # x0, y0, x1, y1 = 83, 131, 133, 180
@@ -38,8 +38,8 @@ if __name__ == "__main__":
     parser.add_argument('ngauss', type=int, help="Number of Gaussian components in the fit.")
     parser.add_argument('-x', '--xstart', type=int, default=141, help="X position of pixel initially shown.")
     parser.add_argument('-y', '--ystart', type=int, default=141, help="Y position of pixel initially shown.")
-    parser.add_argument('--vmin', type=int, default=-3, help="Minimum velocity plotted in colorbar")
-    parser.add_argument('--vmax', type=int, default=18, help="Minimum velocity plotted in colorbar")
+    parser.add_argument('--vmin', type=float, default=-3.0, help="Minimum velocity plotted in colorbar")
+    parser.add_argument('--vmax', type=float, default=18.0, help="Minimum velocity plotted in colorbar")
     args = parser.parse_args()
 
     #

@@ -1,0 +1,7 @@
+# Steps ran for the first look
+
+python3 linefit_ltsq.py 1
+python3 linefit_ltsq.py 2 --startpoint 236 247
+python3 linefit_ltsq.py 3 #failed as no fit passed the quality assessment
+
+python3 define_components.py 1 2

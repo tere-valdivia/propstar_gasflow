@@ -1,6 +1,6 @@
 import sys
 sys.path.append('../')
-from config import *
+from setup import *
 from astropy.wcs import WCS
 from astropy.io import fits
 import pyspeckit
@@ -141,18 +141,15 @@ def interpolatesolutions(solfilein, npeaks, mask=None):
     return filledcube, headersolcube
 
 
-def main(ngauss, snratio, minsize, initguesses=None, starting_point=None, overwrite=False, verbose=False):
-    fitdir = 'gaussfit/'
-    imagefile = hc3n_10_9_cube_s + '_K.fits'
-    rmsfile = hc3n_10_9_cube_s + '_rms_K.fits'
-    snrfile = hc3n_10_9_cube_s + '_K_-3.0_18.0_snr.fits'
-    maskfile = fitdir + 'HC3N_10_9_mask'
+def main(ngauss, snratio, minsize, initguesses=None, err_tol=0.5, starting_point=None, overwrite=False, verbose=False, filter_before_refit=True):
+    imagefile = hc3n_10_9_cube + '.fits'
+    # maskfile = fitdir + 'HC3N_10_9_mask'
 
-    fitfile =  fitdir + 'HC3N_10_9_{}G_fitparams.fits'.format(ngauss)
-    fitfilefiltered = fitdir + 'HC3N_10_9_{}G_fitparams_filtered.fits'.format(ngauss)
-    newguessfile = fitdir + 'HC3N_10_9_{}G_fitparams_filtered_guesses.fits'.format(ngauss)
-    fitfile2 = fitdir + 'HC3N_10_9_{}G_fitparams_2.fits'.format(ngauss)
-    fitfile2filtered = fitdir + 'HC3N_10_9_{}G_fitparams_2_filtered.fits'.format(ngauss)
+    fitfile =  fitfilebase.format(ngauss) + '.fits' #fitdir + 'HC3N_10_9_{}G_fitparams.fits'.format(ngauss)
+    fitfilefiltered = fitfilebase.format(ngauss) + '_filtered.fits' # fitdir + 'HC3N_10_9_{}G_fitparams_filtered.fits'.format(ngauss)
+    newguessfile = fitfilebase.format(ngauss) + '_filtered_guesses.fits' # fitdir + 'HC3N_10_9_{}G_fitparams_filtered_guesses.fits'.format(ngauss)
+    fitfile2 = fitfilebase.format(ngauss) + '_2.fits'  # fitdir + 'HC3N_10_9_{}G_fitparams_2.fits'.format(ngauss)
+    fitfile2filtered = fitfilebase.format(ngauss) + '_2_filtered.fits' # fitdir + 'HC3N_10_9_{}G_fitparams_2_filtered.fits'.format(ngauss)
     
     cube = pyspeckit.Cube(imagefile)
     header = cube.header
@@ -160,6 +157,7 @@ def main(ngauss, snratio, minsize, initguesses=None, starting_point=None, overwr
     beamarea, beamarea_pix2 = beam_size(header)
     minsizetrim = minsize * beamarea_pix2
     chansize = np.abs(header['CDELT3'])
+    print('Channel width: ', chansize)
 
     rmsmap = fits.getdata(rmsfile)
     snrmap, headerimage = fits.getdata(snrfile, header=True)
@@ -187,7 +185,8 @@ def main(ngauss, snratio, minsize, initguesses=None, starting_point=None, overwr
     else:
         planemask = fits.getdata(maskfile+'.fits')
         if verbose: print('Loaded Mask file')
-    initguess_master = [2, 8, 0.5, 2, 6.5, 0.5, 2, 10, 0.5]
+    
+    initguess_master = [1, 8, 0.2, 0.8, 7, 0.2, 0.7, 6, 0.3]
         
     if initguesses is None:
         initguesses = initguess_master[:ngauss*3]
@@ -206,7 +205,7 @@ def main(ngauss, snratio, minsize, initguesses=None, starting_point=None, overwr
                      maxpars=maxpars,
                      use_neighbor_as_guess=True, 
                      start_from_point=starting_point,
-                     verbose=verbose,
+                     verbose=False,
                      multicore=40)
         cube.write_fit(fitfile, overwrite=overwrite)
         fittedmodel = cube.get_modelcube()
@@ -214,34 +213,41 @@ def main(ngauss, snratio, minsize, initguesses=None, starting_point=None, overwr
     else:
         cube.load_model_fit(fitfile, npars=3, npeaks=ngauss, fittype='gaussian')
 
-    if not os.path.exists(fitfilefiltered) or overwrite:
-        if verbose: print("Creating filtered version.") 
-        parcube, errcube = filtersolutions(cube.parcube, cube.errcube, ngauss, 
-                                           rmsmap=rmsmap, snratio=snratio, 
-                                           velinit=velrange[0], velend=velrange[1], 
-                                           filter_negative=True, errorfrac=0.5, 
-                                           filter_islands=True, chansize=chansize, widthfilter=True)
-        cube.parcube = parcube
-        cube.errcube = errcube
-        cube.write_fit(fitfilefiltered, overwrite=overwrite) 
-        fittedmodel = cube.get_modelcube()
-
-    else:
-        if verbose: print("Loading filtered version.")
-        cube.load_model_fit(fitfilefiltered, npars=3, npeaks=ngauss, fittype='gaussian')
-        fittedmodel = cube.get_modelcube()
         
-    if not os.path.exists(newguessfile) or overwrite:
-        if verbose: print("Interpolating previous solutions.")
-        newinitguess, headerguess = interpolatesolutions(fitfilefiltered, ngauss, mask=planemask)
-        fits.writeto(newguessfile, newinitguess, headerguess, overwrite=overwrite)
-
+    if not filter_before_refit:
+        if verbose: print('Not filtering before refit')
+        newinitguess = fits.getdata(fitfile)[:3*ngauss]
+    
     else:
-        if verbose: print("Interpolation exists. Loading.")
-        newinitguess = fits.getdata(newguessfile)
+        
+        if not os.path.exists(fitfilefiltered) or overwrite:
+            if verbose: print("Creating filtered version.") 
+            parcube, errcube = filtersolutions(cube.parcube, cube.errcube, ngauss, 
+                                               rmsmap=rmsmap, snratio=3, 
+                                               velinit=velrange[0], velend=velrange[1], 
+                                               filter_negative=True, errorfrac=err_tol, 
+                                               filter_islands=True, chansize=chansize, widthfilter=True)
+            cube.parcube = parcube
+            cube.errcube = errcube
+            cube.write_fit(fitfilefiltered, overwrite=overwrite) 
+            fittedmodel = cube.get_modelcube()
+
+        else:
+            if verbose: print("Loading filtered version.")
+            cube.load_model_fit(fitfilefiltered, npars=3, npeaks=ngauss, fittype='gaussian')
+            fittedmodel = cube.get_modelcube()
+
+        if not os.path.exists(newguessfile) or overwrite:
+            if verbose: print("Interpolating previous solutions.")
+            newinitguess, headerguess = interpolatesolutions(fitfilefiltered, ngauss, mask=planemask)
+            fits.writeto(newguessfile, newinitguess, headerguess, overwrite=overwrite)
+
+        else:
+            if verbose: print("Interpolation exists. Loading.")
+            newinitguess = fits.getdata(newguessfile)
         
     if not os.path.exists(fitfile2) or overwrite:
-        print("Starting fit")
+        print("Starting re-fit")
         cube.fiteach(fittype='gaussian',
                      guesses=newinitguess,
                      errmap = rmsmap, 
@@ -252,7 +258,7 @@ def main(ngauss, snratio, minsize, initguesses=None, starting_point=None, overwr
                      maxpars=maxpars,
                      use_neighbor_as_guess=True, 
                      start_from_point=starting_point,
-                     verbose=verbose,
+                     verbose=False,
                      verbose_level=1,
                      multicore=40)
         cube.write_fit(fitfile2, overwrite=overwrite)
@@ -265,9 +271,9 @@ def main(ngauss, snratio, minsize, initguesses=None, starting_point=None, overwr
     if not os.path.exists(fitfile2filtered) or overwrite:
         if verbose: print("Creating filtered version.") 
         parcube, errcube = filtersolutions(cube.parcube, cube.errcube, ngauss, 
-                                           rmsmap=rmsmap, snratio=snratio, 
+                                           rmsmap=rmsmap, snratio=3, 
                                            velinit=velrange[0], velend=velrange[1], 
-                                           filter_negative=True, errorfrac=0.5, 
+                                           filter_negative=True, errorfrac=err_tol, 
                                            filter_islands=True, chansize=chansize, widthfilter=True)
         cube.parcube = parcube
         cube.errcube = errcube
@@ -282,11 +288,12 @@ def main(ngauss, snratio, minsize, initguesses=None, starting_point=None, overwr
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fits the HC3N 10-9 cube using the indicated number of Gaussian components')
     parser.add_argument('ngauss', type=int, help="Number of Gaussian components to fit")
-    parser.add_argument('-g', '--guesses', type=list, default=None, help="Initial guesses for the fit. Length: 3 times ngauss")
+    parser.add_argument('-g', '--guesses', type=int, nargs='+', default=None, help="Initial guesses for the fit. Length: 3 times ngauss")
     parser.add_argument('-s', '--snr', type=float, default=4.0, help="Minimal signal to noise ratio to fit.")
     parser.add_argument('-o', '--overwrite', action="store_true", help="Overwrite existing files.")
     parser.add_argument('-m', '--minsize', type=float, default=1.0, help="Minimum area to fit in beam sizes.")
     parser.add_argument('--startpoint', type=int, nargs=2, default=None, help="X and Y initial position to fit.")
+    parser.add_argument('-f', '--filterbefore', action="store_false", help="Avoid filtering the first solutions to use as initial guesses for second fit.")
     parser.add_argument('-v', '--verbose', action="store_true", help="Activate verbose output.")
 
     args = parser.parse_args()
@@ -294,8 +301,9 @@ if __name__ == "__main__":
     initialguesses = args.guesses
     if (initialguesses is not None) and (len(initialguesses) != ngauss * 3): 
         raise ValueError('The initial guesses list has a length of {0} and should be {1}'.format(len(initialguesses), ngauss*3))
-    startpoint = None
     if args.startpoint is not None:
         startpoint = (args.startpoint[0], args.startpoint[1])
+    else:
+        startpoint = None
     
-    main(args.ngauss, args.snr, args.minsize, initguesses=initialguesses, starting_point=startpoint, overwrite=args.overwrite, verbose=args.verbose)
+    main(args.ngauss, args.snr, args.minsize, initguesses=initialguesses, starting_point=startpoint, overwrite=args.overwrite, verbose=args.verbose, filter_before_refit=args.filterbefore)
