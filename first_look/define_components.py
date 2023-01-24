@@ -25,17 +25,16 @@ def main(ngausslist, overwrite=False, verbose=False):
     deltaaicfile = diagnosticfolder+ 'deltaAIC_values_models.fits'
     probaicfile = diagnosticfolder + 'deltaAICprob_values_models.fits'
     
+    paramfiles = []
+    for n in ngausslist:
+        paramfiles.append(fitfilebase.format(n) + '_2_filtered.fits')
+        
+    paramsaicnamelist = [fitfilebase.format(n) + '_aic.fits' for n in ngausslist]
+    
     if not os.path.exists(ncomponentsfile) or overwrite:
         # Prepare the list of files to compare
-        paramfiles = []
-        for n in ngausslist:
-            paramfiles.append(fitfilebase.format(n) + '_2_filtered.fits')
-        print(paramfiles)
-
-        # parameters = [fits.getdata(paramfile) for paramfile in paramfiles] # this is an [nmodel, 6, y, x] dimension array 
 
         #load the cube
-        # maskfile = fitdir + 'HC3N_10_9_mask.fits'
         cubenormal = SpectralCube.read(hc3n_10_9_cube+'.fits')
         mask, header2D = fits.getdata(maskfile+'.fits', header=True)
         rmsmap = fits.getdata(rmsfile)
@@ -65,9 +64,20 @@ def main(ngausslist, overwrite=False, verbose=False):
             fits.writeto(aicfile.format(n), results_aic[5][pos], header2D, overwrite=True)
         
     else:
-        results_aic = (fits.getdata(ncomponentsfile), fits.getdata(ncomponentsflagfile), fits.getdata(aicfile))
+        results_aic = (fits.getdata(ncomponentsfile), fits.getdata(ncomponentsflagfile))
         print(ncomponentsfile + ' and ' + ncomponentsflagfile + ' already exists. Loaded.')
-
+        
+    filesexist = [os.path.exists(paramsaicname) for paramsaicname in paramsaicnamelist]
+    
+    if not np.all(filesexist) or overwrite:
+        parameters = [fits.getdata(paramfile) for paramfile in paramfiles] # this is an [nmodel, 6, y, x] dimension array 
+        for i, n in enumerate(ngausslist):
+            headeraic = fits.getheader(paramfiles[i])
+            paramsaic = get_aic_filtered_params(parameters[i], n, results_aic[0])
+            fits.writeto(paramsaicnamelist[i], paramsaic, headeraic, overwrite=True)
+    else:
+        print('Parameter files already exist.')
+    
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Determines the number of Gaussian components in each spectrum (either 1 or 2) according to the Akaike Information Criterion')
