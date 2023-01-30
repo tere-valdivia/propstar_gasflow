@@ -150,6 +150,14 @@ def main(ngauss, snratio, minsize, initguesses=None, err_tol=0.5, starting_point
     newguessfile = fitfilebase.format(ngauss) + '_filtered_guesses.fits' # fitdir + 'HC3N_10_9_{}G_fitparams_filtered_guesses.fits'.format(ngauss)
     fitfile2 = fitfilebase.format(ngauss) + '_2.fits'  # fitdir + 'HC3N_10_9_{}G_fitparams_2.fits'.format(ngauss)
     fitfile2filtered = fitfilebase.format(ngauss) + '_2_filtered.fits' # fitdir + 'HC3N_10_9_{}G_fitparams_2_filtered.fits'.format(ngauss)
+    if ngauss == 1:
+        amp1_1Gfile = fitfilebase.format(ngauss) + '_amp1.fits'
+        amp1_e_1Gfile = fitfilebase.format(ngauss) + '_eamp1.fits'
+        v1_1Gfile = fitfilebase.format(ngauss) + '_vel1.fits'
+        v1_e_1Gfile = fitfilebase.format(ngauss) + '_evel1.fits'
+        sigma1_1Gfile = fitfilebase.format(ngauss) + '_sigma1.fits'
+        sigma1_e_1Gfile = fitfilebase.format(ngauss) + '_esigma1.fits'
+
     
     cube = pyspeckit.Cube(imagefile)
     header = cube.header
@@ -180,7 +188,7 @@ def main(ngauss, snratio, minsize, initguesses=None, err_tol=0.5, starting_point
         # fits.writeto(maskfile+'_2.fits', planemask.astype(int), hdcube)
         planemask = closing(planemask, disk(1))
         planemask = remove_small_holes(planemask, area_threshold=6)
-        fits.writeto(maskfile+'.fits', planemask.astype(int), hdcube,)
+        fits.writeto(maskfile+'.fits', planemask.astype(int), hdcube)
         if verbose: print('Created Mask file')
     else:
         planemask = fits.getdata(maskfile+'.fits')
@@ -284,6 +292,26 @@ def main(ngauss, snratio, minsize, initguesses=None, err_tol=0.5, starting_point
         if verbose: print("Loading filtered version.")
         cube.load_model_fit(fitfile2filtered, 3, fittype='gaussian')
         fittedmodel = cube.get_modelcube()
+        parcube = cube.parcube
+        errcube = cube.errcube
+
+    headeramp = headerimage.copy()
+    headerv = headerimage.copy()
+    headersigma = headerimage.copy()
+    headeramp['BUNIT'] = 'K'
+    headerv['BUNIT'] = 'km s-1'
+    headersigma['BUNIT'] = 'km s-1'
+
+    if ngauss == 1:
+        if not os.path.exists(amp1_1Gfile) or overwrite:
+            fits.writeto(amp1_1Gfile, parcube[0], headeramp, overwrite=True)
+            fits.writeto(v1_1Gfile, parcube[1], headerv, overwrite=True)
+            fits.writeto(sigma1_1Gfile, parcube[2], headersigma, overwrite=True)
+        if not os.path.exists(amp1_e_1Gfile) or overwrite:
+            fits.writeto(amp1_e_1Gfile, errcube[0], headeramp, overwrite=True)
+            fits.writeto(v1_e_1Gfile, errcube[1], headerv, overwrite=True)
+            fits.writeto(sigma1_e_1Gfile, errcube[2], headersigma, overwrite=True)
+	
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Fits the HC3N 10-9 cube using the indicated number of Gaussian components')

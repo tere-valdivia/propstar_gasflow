@@ -1,0 +1,15 @@
+We mostly follow the steps from https://github.com/vlas-sokolov/bayesian-ngc1333
+
+1. We first digest the data for lazy loading, running in an ipython
+> ipython
+> import opencube; spc=opencube.make_cube(); opencube.save_datacube(spc)
+
+2. Then we tested the fit with plotting to adjust the models to Gaussian and corroborate the plots worked
+> ipython
+> run innocent_script.py 1 207 260 1 # 1 Gaussian
+> run innocent_script.py 2 207 260 1 # 2 Gaussians
+
+3. Then we run the pool_xy with SNR cut of 1 so it fits all the bg with 1 Gaussian (so we can calculate K_0^1) and 2 Gaussians
+# we have to up the ulimit -n to 65596
+> python3 pool_xy.py 1 snr 1 10
+> python3 pool_xy.py 2 snr 1 10
