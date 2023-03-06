@@ -18,12 +18,7 @@ from opencube import make_cube
 from config import file_Ks, sampler_script_file, logs_dir
 import resource
 
-#should be 4096
-print('Available open file max: ', resource.getrlimit(resource.RLIMIT_NOFILE))
-#resource.setrlimit(resource.RLIMIT_NOFILE, (131072, 131072)) # this is to avoid the following error:
-# PMIX ERROR: OUT-OF-RESOURCE in file src/server/pmix_server_listener.c at line 273
-# didn't work
-
+cut_up = 30
 
 pool_multinest.Config.log_dir = logs_dir
 
@@ -55,6 +50,8 @@ def batch_sample_xy():
     if method == 'snr':
         spc = make_cube() # comes with pregen snr attributes...
         sort_array = spc.snrmap
+        # Trick: if you just want to go from an upper cut to a lower cut, add:
+        sort_array[np.where(sort_array>cut_up)] = np.nan
     elif method == 'Bfactor':
         from astropy.io import fits
         sort_array = fits.getdata(file_Ks)[npeaks-2]
@@ -71,7 +68,9 @@ def batch_sample_xy():
     # NOTE: map vs imap? imap has better ordering... see more here:
     #       [https://stackoverflow.com/questions/26520781]
     # NOTE 2: imap won't work here...
-    pool.map(pool_multinest.work, tasks)
+    # NOTE 3 (teresa): imap needs a "finalizer" (somewhere to give its "return") to work
+    # so we added list() as a trick
+    list(pool.imap(pool_multinest.work, tasks))
 
 
 if __name__ == '__main__':

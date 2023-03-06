@@ -15,6 +15,7 @@ mainfolder = str(Path.home()) + '/propstar_gasflow/'
 datafolder = mainfolder + 'data/'
 firstlookfolder = mainfolder + 'first_look/'
 figfolder = mainfolder + 'figures/'
+bayesfolder = mainfolder + 'bayes_frame/'
 
 hc3n_10_9_cube_original = datafolder + 'NGC1333_HC3N_L24-merged'
 hc3n_10_9_cube = datafolder + 'NGC1333_HC3N_L24-merged_small_K'
@@ -25,9 +26,11 @@ fitdir = firstlookfolder + 'gaussfit/'
 rmsfile = hc3n_10_9_cube + '_rms.fits'
 snrfile = hc3n_10_9_cube + '_-3.0_18.0_snr.fits'
 maskfile = fitdir + 'HC3N_10_9_mask'
+fitfilebase = fitdir + 'HC3N_10_9_{}G_fitparams'
 
-fitfilebase =  fitdir + 'HC3N_10_9_{}G_fitparams'
-
+#files for nested sampling results
+bayesfitfilebase = bayesfolder + 'nested-sampling/NGC1333-SE-mle-x{}.fits'
+bayesnpeaksfile = bayesfolder + 'nested-sampling/npeaks_cut5.fits'
 
 distance = 294 * u.pc # pc, Zucker et al 2018?
 hc3n_10_9_rms = 1.1508e-2 # Jy/beam

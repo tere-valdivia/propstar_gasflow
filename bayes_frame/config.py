@@ -43,7 +43,8 @@ file_Zs = os.path.join(chain_dir, '{}-Zs.fits'.format(name_id))
 file_mle_formatter = os.path.join(chain_dir,
                                   '{}-mle'.format(name_id)+'-x{}.fits')
 file_mle_x1 = file_mle_formatter.format(1) # that's prorbaly not the best way
-file_mle_x2 = file_mle_formatter.format(2) # that's prorbaly not the best way
+file_mle_x2 = file_mle_formatter.format(2) 
+file_mle_x3 = file_mle_formatter.format(3) 
 
 
 
@@ -55,7 +56,7 @@ file_rms_hc3n_10_9 = os.path.join(data_dir, 'NGC1333_HC3N_L24-merged_small_K_rms
 #file_hc3n_10_9 = os.path.join(data_dir, 'NGC1333_HC3N_L24-merged_small_K_testcube.fits')
 #file_rms_hc3n_10_9 = os.path.join(data_dir, 'NGC1333_HC3N_L24-merged_small_K_testcube_rms.fits')
 
-file_sig_dr1 = fitfilebase.format(1) + '_sigma1.fits'
+file_sig_dr1 = '/home/mvaldivi/propstar_gasflow/first_look/gaussfit/' # fitfilebase.format(1) + '_sigma1.fits'
 file_esig_dr1 = fitfilebase.format(1) + '_esigma1.fits'
 
 
