@@ -10,13 +10,13 @@ do_plot = False
 
 n_cores = 40
 rest_f =  93171.617*u.MHz # Frequency used in the observations
-file_fit_thick = 'fits/NGC1333-N2Hp_match_fit_near_thick.fits'
-file_fit_thin = 'fits/NGC1333-N2Hp_match_fit_near_thin.fits'
-file_TdV = 'fits/NGC1333-N2Hp_match_TdV.fits'
-file_mom1 = 'fits/NGC1333-N2Hp_match_Mom1.fits'
-file_tp = 'fits/NGC1333-N2Hp_match_Tpeak.fits'
-file_rms = 'fits/NGC1333-N2Hp_match_rms.fits'
-file_in = 'data/NGC1333-N2Hp_match_kms.fits'
+file_fit_thick = 'fit_N2Hp/NGC1333-N2Hp_match_fit_near_thick.fits'
+file_fit_thin = 'fit_N2Hp/NGC1333-N2Hp_match_fit_near_thin.fits'
+file_TdV = 'fit_N2Hp/NGC1333-N2Hp_match_TdV.fits'
+file_mom1 = 'fit_N2Hp/NGC1333-N2Hp_match_Mom1.fits'
+file_tp = 'fit_N2Hp/NGC1333-N2Hp_match_Tpeak.fits'
+file_rms = 'fit_N2Hp/NGC1333-N2Hp_match_rms.fits'
+file_in = '../data/NGC1333-N2Hp_match_kms.fits'
 
 cube = SC.read(file_in)
 cube.allow_huge_operations = True

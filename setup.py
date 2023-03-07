@@ -19,6 +19,7 @@ bayesfolder = mainfolder + 'bayes_frame/'
 
 hc3n_10_9_cube_original = datafolder + 'NGC1333_HC3N_L24-merged'
 hc3n_10_9_cube = datafolder + 'NGC1333_HC3N_L24-merged_small_K'
+n2hp_1_0_cube = datafolder + 'NGC1333-N2Hp_match_kms'
 # hc3n_10_9_cube_s = hc3n_10_9_cube +'_small'
 
 # files for gaussian fit
@@ -27,6 +28,9 @@ rmsfile = hc3n_10_9_cube + '_rms.fits'
 snrfile = hc3n_10_9_cube + '_-3.0_18.0_snr.fits'
 maskfile = fitdir + 'HC3N_10_9_mask'
 fitfilebase = fitdir + 'HC3N_10_9_{}G_fitparams'
+
+n2hpfitdir = firstlookfolder + 'fit_N2Hp/'
+
 
 #files for nested sampling results
 bayesfitfilebase = bayesfolder + 'nested-sampling/NGC1333-SE-mle-x{}.fits'
