@@ -5,7 +5,7 @@ not about the actual sampling, but the overheads are only executed once...
 """
 from __future__ import division
 import sys
-#import time
+import time
 # the os.niceness will be inherited by child processes
 # behave, kids!
 import os
@@ -18,7 +18,7 @@ from opencube import make_cube
 from config import file_Ks, sampler_script_file, logs_dir
 import resource
 
-cut_up = 30
+cut_up = 15
 
 pool_multinest.Config.log_dir = logs_dir
 
@@ -74,8 +74,8 @@ def batch_sample_xy():
 
 
 if __name__ == '__main__':
-    #st = time.time()
+    st = time.time()
     batch_sample_xy()
-    #et = time.time()
-    #elapsed_time = et - st
-    #print('Execution time:', elapsed_time, 'seconds')
+    et = time.time()
+    elapsed_time = et - st
+    print('Execution time:', elapsed_time/3600, ' hours')

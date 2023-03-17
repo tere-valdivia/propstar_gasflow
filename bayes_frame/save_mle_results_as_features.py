@@ -12,12 +12,13 @@ from config import *
 import glob
 from spectral_cube import SpectralCube
 
-featuretable = 'feature_table_bayes.csv'
+molecule = 'N2Hp'
+featuretable = molecule+'_feature_table_bayes.csv'
 ngaussmapfile = 'nested-sampling/npeaks_cut5.fits'
-
-# open all mle files and which position has how many components
-cube = SpectralCube.read(hc3n_10_9_cube+'.fits')
+cube = SpectralCube.read(n2hp_1_0_cube+'.fits')
 headermap = cube.header
+# open all mle files and which position has how many components
+
 mlelist = sorted(glob.glob('nested-sampling/NGC1333-SE-mle-x*.fits'))
 ngauss = len(mlelist)
 

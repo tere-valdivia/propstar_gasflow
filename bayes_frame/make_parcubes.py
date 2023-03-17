@@ -25,4 +25,4 @@ def make_parcubes(peaks=(1, 2)):
 
 
 if __name__ == '__main__':
-    make_parcubes(peaks=[1, 2, 3])
+    make_parcubes(peaks=[1, 2])

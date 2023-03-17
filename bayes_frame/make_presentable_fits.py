@@ -36,9 +36,9 @@ def header_flatten(head):
 
 Kcut = 5 # the heuristical ln(Z1/Z2) cut for model selection
 
-###########~~~~~~~~~~~ Load in GAS DR1 results on NGC1333 ~~~~~~~~~~###########
+###########~~~~~~~~~~~ Load in single fit results on NGC1333 ~~~~~~~~~~###########
 Ks = fits.getdata(file_Ks)
-mle3 = fits.getdata(file_mle_x3)
+#mle3 = fits.getdata(file_mle_x3)
 mle2 = fits.getdata(file_mle_x2)
 mle1 = fits.getdata(file_mle_x1)
 
@@ -60,17 +60,17 @@ sig_dr1[sig_dr1 == 0] = np.nan
 npeaks_map[Ks[0] <= Kcut] = 0
 npeaks_map[Ks[0] > Kcut] = 1
 npeaks_map[(Ks[0] > Kcut) & (Ks[1] > Kcut)] = 2
-npeaks_map[(Ks[1] > Kcut) & (Ks[2] > Kcut)] = 3
+#npeaks_map[(Ks[1] > Kcut) & (Ks[2] > Kcut)] = 3
 hdu_npeaks = fits.PrimaryHDU(npeaks_map,
                              header=header_flatten(fits.getheader(file_mle_x1)))
 hdu_npeaks.writeto('nested-sampling/npeaks_cut5.fits', overwrite=True)
 fig = aplpy.FITSFigure(hdu_npeaks)
-cmaplst = ['#f0f9e8', '#bae4bc', '#7bccc4', '#2b8cbe'] # stolen from colorbrewer2, sequencial 4-class GnBu
+cmaplst = ['#e0f3db', '#a8ddb5', '#43a2ca'] #['#f0f9e8', '#bae4bc', '#7bccc4', '#2b8cbe'] # stolen from colorbrewer2, sequencial 4-class GnBu
 lcmap = ListedColormap(cmaplst)
-fig.show_colorscale(cmap=lcmap, vmin=-0.5, vmax=3.5)
+fig.show_colorscale(cmap=lcmap, vmin=-0.5, vmax=2.5)
 fig.ticks.set_color('black') 
 fig.add_colorbar()
-fig.colorbar.set_ticks([0, 1, 2, 3])
+fig.colorbar.set_ticks([0, 1, 2]) #, 3])
 fig.show_contour(file_sig_dr1, levels=[0], linewidths=0.5, colors='black')
 fig.savefig("nested-sampling/figs/npeaks_map.pdf", dpi=140)
 

@@ -19,7 +19,8 @@ bayesfolder = mainfolder + 'bayes_frame/'
 
 hc3n_10_9_cube_original = datafolder + 'NGC1333_HC3N_L24-merged'
 hc3n_10_9_cube = datafolder + 'NGC1333_HC3N_L24-merged_small_K'
-n2hp_1_0_cube = datafolder + 'NGC1333-N2Hp_match_kms'
+n2hp_1_0_cube_original = datafolder + 'NGC1333-N2Hp_match_kms'
+n2hp_1_0_cube = datafolder + 'NGC1333-N2Hp_match_kms_F1F_01_12' # we need to integrate the component bw 5 and 10 km/s
 # hc3n_10_9_cube_s = hc3n_10_9_cube +'_small'
 
 # files for gaussian fit
