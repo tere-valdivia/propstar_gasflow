@@ -16,3 +16,10 @@ We mostly follow the steps from https://github.com/vlas-sokolov/bayesian-ngc1333
 
 
 For N2Hp is the same but we test with y=142, x=132
+
+Then you run
+> python3 make_KZ_cubes.py
+> python3 make_parcubes.py
+> python3 make_presentable_fits.py
+> python3 save_mle_fits_filtered.py so that we eliminate small islands of fits
+> python3 save_mle_results_as_features.py to export to glue

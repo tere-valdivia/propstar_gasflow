@@ -18,7 +18,7 @@ from opencube import make_cube
 from config import file_Ks, sampler_script_file, logs_dir
 import resource
 
-cut_up = 15
+cut_up = 6
 
 pool_multinest.Config.log_dir = logs_dir
 
