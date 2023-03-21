@@ -23,3 +23,6 @@ Then you run
 > python3 make_presentable_fits.py
 > python3 save_mle_fits_filtered.py so that we eliminate small islands of fits
 > python3 save_mle_results_as_features.py to export to glue
+
+If you did a Quality Assessment afterwards, run again with _QA as ending name for the mle files:
+> python3 save_mle_results_as_features.py #after editing
