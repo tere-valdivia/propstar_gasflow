@@ -51,8 +51,8 @@ file_mle_x3 = file_mle_formatter.format(3)
 # [File Paths: HC3N (10-9) fits files or N2Hp isolated F1F=01_12 fits files]
 data_dir = os.path.expanduser('/home/mvaldivi/propstar_gasflow/data/')
 # we will do a test in a 10x10 patch
-file_hc3n_10_9 = os.path.join(data_dir, 'NGC1333-N2Hp_match_kms_F1F_01_12.fits') #'NGC1333_HC3N_L24-merged_small_K.fits'
-file_rms_hc3n_10_9 = os.path.join(data_dir, 'NGC1333-N2Hp_match_kms_F1F_01_12_rms.fits') #'NGC1333_HC3N_L24-merged_small_K_rms.fits'
+file_hc3n_10_9 = os.path.join(data_dir, 'NGC1333_HC3N_L24-merged_small_K.fits') #  'NGC1333-N2Hp_match_kms_F1F_01_12.fits'
+file_rms_hc3n_10_9 = os.path.join(data_dir, 'NGC1333_HC3N_L24-merged_small_K_rms.fits') # 'NGC1333-N2Hp_match_kms_F1F_01_12_rms.fits'
 #file_hc3n_10_9 = os.path.join(data_dir, 'NGC1333_HC3N_L24-merged_small_K_testcube.fits')
 #file_rms_hc3n_10_9 = os.path.join(data_dir, 'NGC1333_HC3N_L24-merged_small_K_testcube_rms.fits')
 
