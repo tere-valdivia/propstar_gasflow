@@ -16,6 +16,9 @@ In this routine, we first eliminate small islands of 1 component or 2 component 
 from the original nested sampling results. We save the mle results only where each
 solution corresponds and name them _filtered.
 
+Note that for the 3 Gaussian component, we did not evaluate it everywhere, so many parts of 
+the K3-2 map are nan, and that affects our filtering
+
 Then, we do a Quality Assessment of the fitted parameters, where we take out the 
 components where the central velocity has an uncertainty larger than the channel width 
 of the cube, and call them _QA. Note that in the case of HC3N, this will leave out the outflows.
@@ -38,8 +41,9 @@ def header_flatten(head):
 
 overwrite_cubes = True
 
-ncomps = 3
-molecule = 'HC3N' # for HC3N, add a third component through ALL the code 
+ncomps = 2
+molecule = 'N2Hp' # for HC3N, add a third component through ALL the code 
+cubefile = n2hp_1_0_cube+'.fits'
 ngaussmapfile = 'nested-sampling/{}/npeaks_cut5.fits'.format(molecule)
 ngaussmapfilefiltered = 'nested-sampling/{}/npeaks_cut5_noislands.fits'.format(molecule)
 npeaksfileQA = 'nested-sampling/{}/npeaks_cut5_noislands_QA.fits'.format(molecule)
@@ -60,10 +64,37 @@ minsize2g = 7
 minsize3g = 2
 Kcut = 5  # the heuristical ln(Z1/Z2) cut for model selection
 
+# we first save the results for 1, 2 and 3 Gaussians where they are most probable given the bayes frame results
+# this saves the original state of things before filtering, basically
+
+npeaks_original = fits.getdata(ngaussmapfile)
+mask1G = np.where(npeaks_original==1, 1, 0)
+mask1G = np.array([mask1G.astype(bool)]*6)
+mask2G = np.where(npeaks_original==2, 1, 0)
+mask2G = np.array([mask2G.astype(bool)]*12)
+mlex1[~mask1G] = np.nan
+mlex2[~mask2G] = np.nan
+# 3 components
+if ncomps == 3:
+    mask3G = np.where(npeaks_original==3, 1, 0)
+    mask3G = np.array([mask3G.astype(bool)]*18)
+    mlex3[~mask3G] = np.nan
+
+fits.writeto('nested-sampling/{}/NGC1333-SE-mle-x1_selected.fits'.format(molecule), mlex1, mle1head, overwrite=True)
+fits.writeto('nested-sampling/{}/NGC1333-SE-mle-x2_selected.fits'.format(molecule), mlex2, mle2head, overwrite=True)
+if ncomps ==3: fits.writeto('nested-sampling/{}/NGC1333-SE-mle-x3_selected.fits'.format(molecule), mlex3, mle3head, overwrite=True)
+
 #### Removal of small islands of fits
 
+# we load the original maps again 
+
+mlex1, mle1head = fits.getdata('nested-sampling/{}/NGC1333-SE-mle-x1.fits'.format(molecule), header=True)
+mlex2, mle2head = fits.getdata('nested-sampling/{}/NGC1333-SE-mle-x2.fits'.format(molecule), header=True)
+#only for HC3N
+if ncomps == 3: mlex3, mle3head = fits.getdata('nested-sampling/{}/NGC1333-SE-mle-x3.fits'.format(molecule), header=True)
 file_KS_mol = 'nested-sampling/{}/NGC1333-SE-Ks.fits'.format(molecule)
 Ks = fits.getdata(file_KS_mol)
+if ncomps == 3: Ks[2][np.where(np.isnan(Ks[2]))] = -10
 
 if not os.path.exists(ngaussmapfilefiltered) or overwrite_cubes:
     # make the ln(K)>Kcut based map of LoS component nu mbers
@@ -81,10 +112,10 @@ if not os.path.exists(ngaussmapfilefiltered) or overwrite_cubes:
     # 3 components
     if ncomps ==3:
         Karr3_clean = Karr2_clean.copy()
-        Karr3_clean[(Ks[1] > Kcut) & (Ks[2] <= Kcut)] = 0
-        Karr3_clean[(Ks[1] > Kcut) & (Ks[2] > Kcut)] = 1
+        Karr3_clean[(Ks[0] > Kcut) & (Ks[1] > Kcut) & (Ks[2] <= Kcut)] = 0
+        Karr3_clean[(Ks[0] > Kcut) & (Ks[1] > Kcut) & (Ks[2] > Kcut)] = 1
         Karr3_clean = morphology.remove_small_objects(Karr3_clean.astype(bool), min_size=minsize3g).astype(int)
-        fits.writeto('nested-sampling/mask_5_3rdcomp_s{}.fits'.format(minsize3g), Karr3_clean, header=header_flatten(fits.getheader(file_KS_mol)), overwrite=True)
+        fits.writeto('nested-sampling/{0}/mask_5_3rdcomp_s{1}.fits'.format(molecule, minsize3g), Karr3_clean, header=header_flatten(fits.getheader(file_KS_mol)), overwrite=True)
 
     npeaks_map[(Karr_clean == 0)] = 0
     npeaks_map[np.where(np.isnan(Ks[0]))] = np.nan
@@ -164,7 +195,7 @@ else:
 xarray = np.linspace(0, npeakshead['NAXIS1']-1, npeakshead['NAXIS1']).astype(int)
 yarray = np.linspace(0, npeakshead['NAXIS2']-1, npeakshead['NAXIS2']).astype(int)
 
-chanwidth = np.abs(fits.getheader(file_hc3n_10_9)['CDELT3']) #in km/s, note the filename says hc3n but we change it to whatever, check config
+chanwidth = np.abs(fits.getheader(cubefile)['CDELT3']) #in km/s
 chanerror = chanwidth
 
 
@@ -172,7 +203,7 @@ if not os.path.exists(params1gfileQA) or not os.path.exists(params2gfileQA) or n
     for x in xarray:
         for y in yarray:
             npeaks = npeaks_map[y, x]
-            if npeaks ==0 or np.isnan(npeaks_map[y, x]): continue
+            if npeaks == 0 or np.isnan(npeaks_map[y, x]): continue
             elif npeaks == 1:
                 if mlex1[4,y,x]> chanerror: 
                     for i in range(6): mlex1[i, y, x] = np.nan
@@ -208,9 +239,11 @@ if not os.path.exists(params1gfileQA) or not os.path.exists(params2gfileQA) or n
                 else:
                     indexkeep = np.where(keep)[0]
                     if len(indexkeep) == 2:
+                        aux = 0 #without aux, you rewrite the first component and the second is nan
                         for j in indexkeep:
-                            for i in range(3): mlex2[i, y, x] = mlex3[i+3*j, y, x]
-                            for i in range(6, 9):  mlex2[i,y,x] = mlex3[i+3+3*j, y, x]
+                            for i in range(3): mlex2[i+3*aux, y, x] = mlex3[i+3*j, y, x]
+                            for i in range(6, 9):  mlex2[i+3*aux,y,x] = mlex3[i+3+3*j, y, x]
+                            aux +=1
                         npeaks_map[y, x] = 2
                     elif len(indexkeep) == 1:
                         j = indexkeep[0]
