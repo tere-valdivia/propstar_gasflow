@@ -7,10 +7,11 @@ This code loads the
 '''
 from licpy.lic import runlic
 import numpy as np
-#from licpy.plot import grey_save
+# from licpy.plot import grey_save
 import os
 from astropy.io import fits
 
+overwrite = True
 # L is the length of the streamline that will follow subsequent gradients.
 # it should be correlated with the length of the beam
 gradientbasefile = 'vel_grad_{}_HC3N'
@@ -27,5 +28,5 @@ for Li in L:
     # licpy transposes and inverts the vectors!
     tex = runlic(nablay_map, nablax_map, Li* equivdiam)
     tex[np.where(tex==0)] = np.nan
-    #grey_save(dest2+'.pdf', tex)
-    if not os.path.exists(dest2+'.fits'): fits.writeto(dest2+'.fits', tex, gradheader)
+    # grey_save(dest2+'.pdf', tex)
+    if not os.path.exists(dest2+'.fits') or overwrite: fits.writeto(dest2+'.fits', tex, gradheader, overwrite=True)
