@@ -199,6 +199,7 @@ chanwidth = np.abs(fits.getheader(cubefile)['CDELT3']) #in km/s
 chanerror = chanwidth
 
 
+
 if not os.path.exists(params1gfileQA) or not os.path.exists(params2gfileQA) or not os.path.exists(npeaksfileQA) or overwrite_cubes:
     for x in xarray:
         for y in yarray:
