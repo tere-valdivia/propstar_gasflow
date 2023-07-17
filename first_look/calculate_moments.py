@@ -5,7 +5,7 @@ from astropy.io import fits
 from spectral_cube import SpectralCube
 
 convert_to_K = True
-snrlim = 5
+snrlim = 3
 
 cube = SpectralCube.read(hc3n_10_9_cube_original+'.fits').with_spectral_unit(u.km/u.s)
 cube.allow_huge_operations = True
@@ -21,8 +21,8 @@ omega_B, _ = beam_size(cube.header)
 
 # calculate moments
 # calculate rms
-velmin = velrange[0] * u.km/u.s
-velmax = velrange[1] * u.km/u.s
+velmin = 5 * u.km/u.s #velrange[0]
+velmax = 10 * u.km/u.s #velrange[1] 
 velmax_rms = np.amax(cube.spectral_axis).to(u.km/u.s) # we can only trust the noise calculated with the high-velocities
 cuberms = cube.spectral_slab(velmax, velmax_rms)
 rmsmap = np.sqrt((cuberms ** 2).mean(axis=0))
