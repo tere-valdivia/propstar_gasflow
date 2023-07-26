@@ -4,6 +4,8 @@ import matplotlib as mpl
 from matplotlib import rc
 import astropy.units as u
 from pathlib import Path
+import sys
+sys.path.append('../')
 
 mpl.rcParams['xtick.direction'] = 'in'
 mpl.rcParams['ytick.direction'] = 'in'
@@ -51,3 +53,32 @@ def beam_size(header):
     omega_B = 2 * np.pi * beam_sigma_maj * beam_sigma_min
     omega_B_pix2 = (omega_B / pixsize**2).value
     return omega_B, omega_B_pix2
+
+def get_vc_r(velfield, header, centerra, centerdec, distance, region_file=None):
+    
+    from regions import Regions
+    from astropy.wcs import WCS
+    from astropy.io import fits
+    import velocity_tools.velocity_tools.coordinate_offsets as c_offset
+    # load region file and WCS structures
+    if region_file is not None: regions = Regions.read(region_file)
+    wcs_Vc = WCS(header).celestial
+    hd_Vc = wcs_Vc.to_header()
+    hd_Vc['naxis'] = 2
+    hd_Vc['naxis1'] = header['naxis1']
+    hd_Vc['naxis2'] = header['naxis2']
+    results = c_offset.generate_offsets(hd_Vc, centerra, centerdec, pa_angle=0*u.deg, inclination=0*u.deg)
+    rad_au = (results.r * distance*u.pc).to(u.au, equivalencies=u.dimensionless_angles())
+    if region_file is not None:
+        
+        mask_Vc = (regions[0].to_pixel(wcs_Vc)).to_mask()
+        Vc_cutout = mask_Vc.cutout(velfield)
+        rad_cutout = mask_Vc.cutout(rad_au)
+        gd = (mask_Vc.data == 1)
+    else:
+        Vc_cutout = velfield
+        gd = ~np.isnan(Vc_cutout)
+        rad_cutout = rad_au
+    v_los = Vc_cutout[gd]*u.km/u.s
+    r_proj = rad_cutout[gd]
+    return r_proj, v_los
