@@ -37,7 +37,7 @@ B5_ref = B5_c.skyoffset_frame()
 
 # Filenames
 folder = './'
-imagename = folder + 'IRAS4A_HC3N_cluster5.fits'
+imagename = folder + 'IRAS4A_HC3N_cluster7.fits'
 # vcname = folder + 'components_redshifted_envelope_vlsr.fits'
 regionfile = folder + 'candidate_region_IRAS4A.reg'
 
