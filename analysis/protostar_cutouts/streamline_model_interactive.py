@@ -18,17 +18,19 @@ import numpy as np
 from regions import Regions
 
 # Constants
-M_star = 1 * u.Msun 
-M_disk = 3.2 * u.Msun
-M_env = 2.3 * u.Msun 
+M_star = 0 * u.Msun 
+M_disk = 0 * u.Msun
+M_env = 6.1 * u.Msun # per-emb-15
+#M_env = 2.3 * u.Msun # IRAS 4A
 Mtot = M_star + M_disk + M_env
-v_lsr = 6.9 * u.km/u.s # IRAS 4A
-ra_yso = 52.293904
-dec_yso = 31.225259
-distance = 298
+v_lsr = 6.8 * u.km/u.s # per-emb-15
+#v_lsr = 6.9 * u.km/u.s # IRAS 4A
+ra_yso = 52.266896 	
+dec_yso = 31.24617
+distance = 293
 # inclination and position angle given by the outflow (i=0 is edge on, PA=0 lays on west)
-inc = (-35) * u.deg
-PA_ang = (19)*u.deg
+inc = (np.arcsin(0.45)*u.rad).to(u.deg)
+PA_ang = (-35+180)*u.deg
 # exploration angles
 # inc = (43) * u.deg
 # PA_ang = (157+90)*u.deg
@@ -37,9 +39,9 @@ B5_ref = B5_c.skyoffset_frame()
 
 # Filenames
 folder = './'
-imagename = folder + 'IRAS4A_HC3N_cluster7.fits'
+imagename = folder + 'Per-emb-15_HC3N_mlex1.fits'
 # vcname = folder + 'components_redshifted_envelope_vlsr.fits'
-regionfile = folder + 'candidate_region_IRAS4A.reg'
+regionfile = folder + 'candidate_region_Per-emb-15.reg'
 
 # Define the figure where the widgets will be
 fig = plt.figure(figsize=(10, 7))
@@ -53,7 +55,7 @@ wcs = WCS(header).celestial
 
 # Plot the image plane in one of the axes
 ax = fig.add_subplot(121, projection=wcs)
-imageplane = ax.imshow(hdu[0].data[0], vmin=0, vmax=4, origin='lower', cmap='Greys')
+imageplane = ax.imshow(hdu[0].data[0], vmin=0, vmax=3, origin='lower', cmap='Greys')
 hdu.close()
 fig.colorbar(imageplane, ax=ax)
 ax.set_autoscale_on(False)
