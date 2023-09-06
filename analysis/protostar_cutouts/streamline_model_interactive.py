@@ -19,18 +19,21 @@ from regions import Regions
 
 # Constants
 M_star = 0 * u.Msun 
-M_disk = 0 * u.Msun
-M_env = 6.1 * u.Msun # per-emb-15
+M_disk = 0.497 * 1.63 * u.Msun #corrected from 235 to 300 pc
+M_env = 1.39 * 1.63 * u.Msun # IRAS 4B corrected from 235 to 300 pc
 #M_env = 2.3 * u.Msun # IRAS 4A
 Mtot = M_star + M_disk + M_env
-v_lsr = 6.8 * u.km/u.s # per-emb-15
-#v_lsr = 6.9 * u.km/u.s # IRAS 4A
-ra_yso = 52.266896 	
-dec_yso = 31.24617
+# v_lsr = 6.8 * u.km/u.s # per-emb-15
+# v_lsr = 6.9 * u.km/u.s # IRAS 4A
+v_lsr = 7.1 * u.km/u.s # IRAS 4B
+# v_lsr = 7.9 * u.km/u.s # IRAS 4C
+ra_yso = 52.300067
+dec_yso = 31.218898
 distance = 293
 # inclination and position angle given by the outflow (i=0 is edge on, PA=0 lays on west)
-inc = (np.arcsin(0.45)*u.rad).to(u.deg)
-PA_ang = (-35+180)*u.deg
+# inc = (np.arcsin(0.45)*u.rad).to(u.deg)
+inc = 49 * u.deg
+PA_ang = (176)*u.deg
 # exploration angles
 # inc = (43) * u.deg
 # PA_ang = (157+90)*u.deg
@@ -39,9 +42,9 @@ B5_ref = B5_c.skyoffset_frame()
 
 # Filenames
 folder = './'
-imagename = folder + 'Per-emb-15_HC3N_mlex1.fits'
+imagename = folder + 'IRAS4B_HC3N_mlex1.fits'
 # vcname = folder + 'components_redshifted_envelope_vlsr.fits'
-regionfile = folder + 'candidate_region_Per-emb-15.reg'
+regionfile = folder + 'candidate_region_IRAS4B_2.reg'
 
 # Define the figure where the widgets will be
 fig = plt.figure(figsize=(10, 7))
@@ -104,7 +107,7 @@ r_proj, v_los = get_vc_r(velmap, header, ra_yso*u.deg, dec_yso*u.deg, distance, 
 xmin = 0
 xmax = 3000
 # y is velocity lsr
-ymin = 6.2
+ymin = 6.4
 ymax = 7.2
 xx, yy = np.mgrid[xmin:xmax:100j, ymin:ymax:100j]
 positions = np.vstack([xx.ravel(), yy.ravel()])
