@@ -32,7 +32,7 @@ dec_yso = 31.218898
 distance = 293
 # inclination and position angle given by the outflow (i=0 is edge on, PA=0 lays on west)
 # inc = (np.arcsin(0.45)*u.rad).to(u.deg)
-inc = 49 * u.deg
+inc = -49 * u.deg
 PA_ang = (176)*u.deg
 # exploration angles
 # inc = (43) * u.deg
@@ -44,7 +44,7 @@ B5_ref = B5_c.skyoffset_frame()
 folder = './'
 imagename = folder + 'IRAS4B_HC3N_mlex1.fits'
 # vcname = folder + 'components_redshifted_envelope_vlsr.fits'
-regionfile = folder + 'candidate_region_IRAS4B_2.reg'
+regionfile = folder + 'candidate_region_IRAS4B.reg'
 
 # Define the figure where the widgets will be
 fig = plt.figure(figsize=(10, 7))
@@ -105,7 +105,7 @@ r_proj, v_los = get_vc_r(velmap, header, ra_yso*u.deg, dec_yso*u.deg, distance, 
 # create the grid for the kernel distribution
 # x is projected distance
 xmin = 0
-xmax = 3000
+xmax = 5000
 # y is velocity lsr
 ymin = 6.4
 ymax = 7.2
