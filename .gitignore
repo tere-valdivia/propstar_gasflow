@@ -11,6 +11,8 @@ bayes_frame/nested-sampling/HC3N/snr5/
 bayes_frame/nested-sampling/HC3N/subcube_test/
 bayes_frame/nested-sampling/HC3N/test_snr8_sigma02/
 first_look/
+analysis/gradients/
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
